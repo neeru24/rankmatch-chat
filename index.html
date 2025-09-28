@@ -62,36 +62,82 @@ document.getElementById('messageInput').addEventListener('keypress',e=>{if(e.key
 async function checkServerStatus(){
 try{await fetch(SERVER_URL+'/health');}catch(e){alert('Server offline');}}
 
-async function createRoom(){username=document.getElementById('usernameInput').value.trim()||'Player';
+async function createRoom(){
+username=document.getElementById('usernameInput').value.trim()||'Player';
 let res=await fetch(SERVER_URL+'/create_invite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username})});
-let data=await res.json(); if(data.success) joinRoomById(data.roomId);}
+let data=await res.json(); 
+if(data.success) {
+    // Auto-join after creation
+    await joinRoomById(data.roomId);
+}
+}
 
-async function joinRoom(){let roomId=document.getElementById('roomIdInput').value.trim().toUpperCase();
+async function joinRoom(){
+let roomId=document.getElementById('roomIdInput').value.trim().toUpperCase();
 if(!roomId)return alert('Enter room code'); await joinRoomById(roomId);}
 
-async function joinRoomById(roomId){username=document.getElementById('usernameInput').value.trim()||'Player';
+async function joinRoomById(roomId){
+username=document.getElementById('usernameInput').value.trim()||'Player';
 let res=await fetch(`${SERVER_URL}/room/${roomId}/join`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username})});
-let data=await res.json(); if(data.success){currentRoom=roomId; showChatScreen(roomId); startPolling();}else alert(data.error);}
+let data=await res.json(); 
+if(data.success){
+    currentRoom=roomId; 
+    showChatScreen(roomId); 
+    updateMemberCount(data.member_count);
+    startPolling();
+}else alert(data.error);}
 
-function showChatScreen(roomId){document.getElementById('homeScreen').classList.add('hidden'); document.getElementById('chatScreen').classList.remove('hidden'); document.getElementById('roomIdDisplay').textContent=roomId;}
+function showChatScreen(roomId){
+document.getElementById('homeScreen').classList.add('hidden'); 
+document.getElementById('chatScreen').classList.remove('hidden'); 
+document.getElementById('roomIdDisplay').textContent=roomId;
+}
 
-function leaveRoom(){currentRoom=null; document.getElementById('homeScreen').classList.remove('hidden'); document.getElementById('chatScreen').classList.add('hidden'); if(pollInterval){clearInterval(pollInterval); pollInterval=null;}}
+function leaveRoom(){
+currentRoom=null; 
+document.getElementById('homeScreen').classList.remove('hidden'); 
+document.getElementById('chatScreen').classList.add('hidden'); 
+if(pollInterval){clearInterval(pollInterval); pollInterval=null;}
+}
 
-async function sendMessage(){const msg=document.getElementById('messageInput').value.trim(); if(!msg||!currentRoom)return;
+async function sendMessage(){
+const msg=document.getElementById('messageInput').value.trim(); 
+if(!msg||!currentRoom)return;
 await fetch(`${SERVER_URL}/room/${currentRoom}/message`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,message:msg})});
-document.getElementById('messageInput').value='';}
+document.getElementById('messageInput').value='';
+}
 
-function startPolling(){pollInterval=setInterval(async()=>{
+function updateMemberCount(count){
+document.getElementById('memberCount').textContent = count + (count==1 ? " gamer online" : " gamers online");
+}
+
+function startPolling(){
+pollInterval=setInterval(async()=>{
 if(!currentRoom)return;
+// Fetch messages
 let res=await fetch(`${SERVER_URL}/room/${currentRoom}/messages`);
 let data=await res.json();
 let container=document.getElementById('messagesContainer'); container.innerHTML='';
-data.messages.forEach(msg=>{
-let div=document.createElement('div'); 
-div.className=msg.username==='System'?'text-center text-gray-400 italic':'flex '+(msg.username===username?'justify-end':'justify-start');
-div.innerHTML=`<div class="px-3 py-1 rounded ${msg.username===username?'bg-orange-500':'bg-gray-700'}">${msg.username}: ${msg.message}</div>`;
-container.appendChild(div);
-}); container.scrollTop=container.scrollHeight;
+if(data.messages.length===0){
+    container.innerHTML='<div class="text-center text-gray-500 py-12"><i class="fas fa-comments text-4xl mb-3"></i><p>Welcome!</p></div>';
+} else {
+    data.messages.forEach(msg=>{
+        let div=document.createElement('div'); 
+        if(msg.username==='System'){
+            div.className='text-center text-gray-400 italic';
+            div.innerHTML=`<div class="inline-block px-3 py-1 rounded bg-gray-800">${msg.message}</div>`;
+        }else{
+            div.className='flex '+(msg.username===username?'justify-end':'justify-start');
+            div.innerHTML=`<div class="px-3 py-1 rounded ${msg.username===username?'bg-orange-500':'bg-gray-700'}">${msg.username}: ${msg.message}</div>`;
+        }
+        container.appendChild(div);
+    });
+    container.scrollTop=container.scrollHeight;
+}
+// Fetch member count
+let memRes = await fetch(`${SERVER_URL}/room/${currentRoom}/members`);
+let memData = await memRes.json();
+if(memData.success) updateMemberCount(memData.member_count);
 },2000);}
 </script>
 </body>
