@@ -100,3 +100,6 @@ def get_members(room_id):
     if room_id not in rooms:
         return jsonify({'success': False, 'error': 'Room not found'}), 404
     return jsonify({'success': True, 'members': rooms[room_id]['members'], 'member_count': len(rooms[room_id]['members'])})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
