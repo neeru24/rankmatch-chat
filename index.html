@@ -1,176 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GameZone Chat</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .fade-in { animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .pulse-glow { animation: pulseGlow 2s infinite; }
-        @keyframes pulseGlow { 
-            0%, 100% { box-shadow: 0 0 5px #f97316; }
-            50% { box-shadow: 0 0 20px #f97316, 0 0 30px #f97316; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GameZone Chat</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+.fade-in{animation:fadeIn 0.5s;} @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.pulse-glow{animation:pulseGlow 2s infinite;} @keyframes pulseGlow{0%,100%{box-shadow:0 0 5px #f97316;}50%{box-shadow:0 0 20px #f97316,0 0 30px #f97316;}}
+</style>
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-        <div id="homeScreen" class="max-w-md mx-auto fade-in">
-            <div class="text-center mb-8">
-                <div class="w-24 h-24 bg-gradient-to-r from-orange-500 to-red-500 rounded-full mx-auto mb-6 flex items-center justify-center pulse-glow">
-                    <i class="fas fa-gamepad text-3xl"></i>
-                </div>
-                <h1 class="text-4xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">GameZone</h1>
-                <p class="text-gray-400 mt-2">Real-time Gaming Chat</p>
-            </div>
-            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-orange-500 mb-2"><i class="fas fa-user mr-2"></i>Your Gaming Name</label>
-                        <input type="text" id="usernameInput" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-orange-500 transition-colors" placeholder="Enter your name" value="Player">
-                    </div>
-                    <button id="createRoomBtn" class="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-105">
-                        <i class="fas fa-plus mr-2"></i>Create Gaming Room
-                    </button>
-                    <div class="relative my-6">
-                        <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-gray-600"></div>
-                        </div>
-                        <div class="relative flex justify-center text-sm">
-                            <span class="px-3 bg-gray-800 text-gray-400">or join existing room</span>
-                        </div>
-                    </div>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-orange-500 mb-2"><i class="fas fa-key mr-2"></i>Room Code</label>
-                            <input type="text" id="roomIdInput" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-orange-500 transition-colors" placeholder="Enter room code">
-                        </div>
-                        <button id="joinRoomBtn" class="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-105">
-                            <i class="fas fa-sign-in-alt mr-2"></i>Join Room
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="chatScreen" class="hidden max-w-2xl mx-auto">
-            <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
-                <div class="bg-gradient-to-r from-orange-500 to-red-500 px-6 py-4">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h2 class="text-xl font-bold"><i class="fas fa-users mr-2"></i>Room: <span id="roomIdDisplay" class="font-mono">---</span></h2>
-                            <p class="text-orange-100 text-sm" id="memberCount">1 gamer online</p>
-                        </div>
-                        <button id="leaveRoomBtn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                            <i class="fas fa-sign-out-alt mr-2"></i>Leave
-                        </button>
-                    </div>
-                </div>
-                <div id="messagesContainer" class="h-96 overflow-y-auto p-4 bg-gray-900/50 space-y-3">
-                    <div class="text-center text-gray-500 py-12">
-                        <i class="fas fa-comments text-4xl mb-3"></i>
-                        <p class="text-lg">Welcome to the chat!</p>
-                        <p class="text-sm mt-1">Start chatting with your gaming team</p>
-                    </div>
-                </div>
-                <div class="border-t border-gray-700 p-4 bg-gray-800">
-                    <div class="flex space-x-3">
-                        <input type="text" id="messageInput" class="flex-1 px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-orange-500 transition-colors" placeholder="Type your message...">
-                        <button id="sendMessageBtn" class="bg-orange-500 hover:bg-orange-600 px-6 py-3 rounded-lg font-medium transition-colors flex items-center">
-                            <i class="fas fa-paper-plane mr-2"></i>Send
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="container mx-auto px-4 py-8">
+<div id="homeScreen" class="max-w-md mx-auto fade-in">
+<div class="text-center mb-8">
+<div class="w-24 h-24 bg-gradient-to-r from-orange-500 to-red-500 rounded-full mx-auto mb-6 flex items-center justify-center pulse-glow">
+<i class="fas fa-gamepad text-3xl"></i></div>
+<h1 class="text-4xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">GameZone</h1>
+<p class="text-gray-400 mt-2">Real-time Gaming Chat</p></div>
 
-    <script>
-        const SERVER_URL = window.location.origin; // Auto-detect backend URL
-        let currentRoom = null;
-        let username = 'Player';
-        let pollInterval = null;
+<div class="bg-gray-800 rounded-xl p-6 border border-gray-700 space-y-4">
+<input type="text" id="usernameInput" placeholder="Enter your name" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-orange-500 transition-colors" value="Player">
+<button id="createRoomBtn" class="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 py-3 rounded-lg font-bold">Create Room</button>
+<input type="text" id="roomIdInput" placeholder="Enter room code" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-orange-500 transition-colors">
+<button id="joinRoomBtn" class="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 py-3 rounded-lg font-bold">Join Room</button>
+</div>
+</div>
 
-        document.addEventListener('DOMContentLoaded', function() {
-            setupEventListeners();
-            checkServerStatus();
-        });
+<div id="chatScreen" class="hidden max-w-2xl mx-auto space-y-4">
+<div class="bg-gray-800 rounded-xl border border-gray-700 p-4">
+<div class="flex justify-between items-center">
+<h2 class="text-xl font-bold">Room: <span id="roomIdDisplay">---</span></h2>
+<p id="memberCount">1 gamer online</p>
+<button id="leaveRoomBtn" class="bg-red-600 px-3 py-1 rounded">Leave</button>
+</div>
+<div id="messagesContainer" class="h-96 overflow-y-auto mt-2 space-y-2 bg-gray-900/50 p-2 rounded">
+<div class="text-center text-gray-500 py-12"><i class="fas fa-comments text-4xl mb-3"></i><p>Welcome!</p></div>
+</div>
+<input type="text" id="messageInput" placeholder="Type your message..." class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-orange-500">
+<button id="sendMessageBtn" class="bg-orange-500 px-4 py-2 mt-2 rounded">Send</button>
+</div>
+</div>
+</div>
 
-        function setupEventListeners() {
-            document.getElementById('createRoomBtn').addEventListener('click', createRoom);
-            document.getElementById('joinRoomBtn').addEventListener('click', joinRoom);
-            document.getElementById('leaveRoomBtn').addEventListener('click', leaveRoom);
-            document.getElementById('sendMessageBtn').addEventListener('click', sendMessage);
-            document.getElementById('messageInput').addEventListener('keypress', e => { if(e.key==='Enter') sendMessage(); });
-        }
+<script>
+const SERVER_URL = window.location.origin;
+let currentRoom=null, username='Player', pollInterval=null;
 
-        async function checkServerStatus() {
-            try {
-                await fetch(SERVER_URL + '/health');
-            } catch (e) {
-                alert('Server not running!');
-            }
-        }
+document.addEventListener('DOMContentLoaded',()=>{
+setupEventListeners(); checkServerStatus();});
 
-        async function createRoom() {
-            username = document.getElementById('usernameInput').value.trim() || 'Player';
-            const res = await fetch(SERVER_URL + '/create_invite', {
-                method:'POST',
-                headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({username})
-            });
-            const data = await res.json();
-            if(data.success) joinRoomById(data.roomId);
-        }
+function setupEventListeners(){
+document.getElementById('createRoomBtn').onclick=createRoom;
+document.getElementById('joinRoomBtn').onclick=joinRoom;
+document.getElementById('leaveRoomBtn').onclick=leaveRoom;
+document.getElementById('sendMessageBtn').onclick=sendMessage;
+document.getElementById('messageInput').addEventListener('keypress',e=>{if(e.key==='Enter')sendMessage();});
+}
 
-        async function joinRoom() {
-            const roomId = document.getElementById('roomIdInput').value.trim().toUpperCase();
-            if(!roomId) return alert('Enter room code');
-            await joinRoomById(roomId);
-        }
+async function checkServerStatus(){
+try{await fetch(SERVER_URL+'/health');}catch(e){alert('Server offline');}}
 
-        async function joinRoomById(roomId){
-            username = document.getElementById('usernameInput').value.trim() || 'Player';
-            const res = await fetch(`${SERVER_URL}/room/${roomId}/join`,{
-                method:'POST',
-                headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({username})
-            });
-            const data = await res.json();
-            if(data.success){ currentRoom = roomId; showChatScreen(roomId); startPolling(); }
-            else alert(data.error);
-        }
+async function createRoom(){username=document.getElementById('usernameInput').value.trim()||'Player';
+let res=await fetch(SERVER_URL+'/create_invite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username})});
+let data=await res.json(); if(data.success) joinRoomById(data.roomId);}
 
-        function showChatScreen(roomId){
-            document.getElementById('homeScreen').classList.add('hidden');
-            document.getElementById('chatScreen').classList.remove('hidden');
-            document.getElementById('roomIdDisplay').textContent = roomId;
-        }
+async function joinRoom(){let roomId=document.getElementById('roomIdInput').value.trim().toUpperCase();
+if(!roomId)return alert('Enter room code'); await joinRoomById(roomId);}
 
-        function leaveRoom(){
-            currentRoom=null;
-            document.getElementById('homeScreen').classList.remove('hidden');
-            document.getElementById('chatScreen').classList.add('hidden');
-            if(pollInterval){ clearInterval(pollInterval); pollInterval=null; }
-        }
+async function joinRoomById(roomId){username=document.getElementById('usernameInput').value.trim()||'Player';
+let res=await fetch(`${SERVER_URL}/room/${roomId}/join`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username})});
+let data=await res.json(); if(data.success){currentRoom=roomId; showChatScreen(roomId); startPolling();}else alert(data.error);}
 
-        async function sendMessage(){
-            const msg=document.getElementById('messageInput').value.trim();
-            if(!msg || !currentRoom) return;
-            await fetch(`${SERVER_URL}/room/${currentRoom}/message`,{
-                method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username,msg})
-            });
-            document.getElementById('messageInput').value='';
-        }
+function showChatScreen(roomId){document.getElementById('homeScreen').classList.add('hidden'); document.getElementById('chatScreen').classList.remove('hidden'); document.getElementById('roomIdDisplay').textContent=roomId;}
 
-        function startPolling(){ pollInterval=setInterval(async()=>{
-            if(!currentRoom) return;
-            const res = await fetch(`${SERVER_URL}/room/${currentRoom}/messages`);
-            const data = await res.json();
-            console.log(data.messages);
-        },2000);}
-    </script>
+function leaveRoom(){currentRoom=null; document.getElementById('homeScreen').classList.remove('hidden'); document.getElementById('chatScreen').classList.add('hidden'); if(pollInterval){clearInterval(pollInterval); pollInterval=null;}}
+
+async function sendMessage(){const msg=document.getElementById('messageInput').value.trim(); if(!msg||!currentRoom)return;
+await fetch(`${SERVER_URL}/room/${currentRoom}/message`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,message:msg})});
+document.getElementById('messageInput').value='';}
+
+function startPolling(){pollInterval=setInterval(async()=>{
+if(!currentRoom)return;
+let res=await fetch(`${SERVER_URL}/room/${currentRoom}/messages`);
+let data=await res.json();
+let container=document.getElementById('messagesContainer'); container.innerHTML='';
+data.messages.forEach(msg=>{
+let div=document.createElement('div'); 
+div.className=msg.username==='System'?'text-center text-gray-400 italic':'flex '+(msg.username===username?'justify-end':'justify-start');
+div.innerHTML=`<div class="px-3 py-1 rounded ${msg.username===username?'bg-orange-500':'bg-gray-700'}">${msg.username}: ${msg.message}</div>`;
+container.appendChild(div);
+}); container.scrollTop=container.scrollHeight;
+},2000);}
+</script>
 </body>
 </html>
